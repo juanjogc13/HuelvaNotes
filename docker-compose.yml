@@ -1,0 +1,125 @@
+# version: "3.8"  # Obsoleto en Docker Compose v2, se puede omitir
+
+###############################################################################
+# VOLUMENES
+# Persisten datos aunque se paren o borren contenedores
+###############################################################################
+volumes:
+  db_data:
+  node_modules:
+
+###############################################################################
+# RED
+# Todos los contenedores en la misma red para comunicarse
+###############################################################################
+networks:
+  laravel:
+    driver: bridge
+
+###############################################################################
+# SERVICIOS
+###############################################################################
+services:
+
+  ###########################################################################
+  # 🌐 WEB SERVER — NGINX
+  ###########################################################################
+  web:
+    image: nginx:stable-alpine
+    # container_name: laravel_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+    networks:
+      - laravel
+
+
+  ###########################################################################
+  # 🧠 PHP / LARAVEL — PHP-FPM (con extensiones necesarias)
+  ###########################################################################
+  php:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    # container_name: laravel_php
+    working_dir: /var/www/html
+    user: "${DOCKER_UID:-1000}:${DOCKER_GID:-1000}"
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - laravel
+
+
+  ###########################################################################
+  # 🐘 BASE DE DATOS — MYSQL
+  ###########################################################################
+  db:
+    image: mysql:8.0
+    # container_name: laravel_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - laravel
+    command: --default-authentication-plugin=mysql_native_password
+
+
+  ###########################################################################
+  # 🧭 phpMyAdmin — GESTOR DE BASE DE DATOS
+  ###########################################################################
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    # container_name: laravel_phpmyadmin
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
+    networks:
+      - laravel
+
+
+  ###########################################################################
+  # 🎼 COMPOSER
+  ###########################################################################
+  composer:
+    image: composer:2
+    # container_name: laravel_composer
+    working_dir: /var/www/html
+    volumes:
+      - ./src:/var/www/html
+    user: "${DOCKER_UID:-1000}:${DOCKER_GID:-1000}"
+    networks:
+      - laravel
+
+
+  ###########################################################################
+  # 🧪 NODE.JS (para Vite, Tailwind, etc.)
+  ###########################################################################
+  node:
+    image: node:20-alpine
+    # container_name: laravel_node
+    working_dir: /var/www/html
+    volumes:
+      - ./src:/var/www/html
+      - node_modules:/var/www/html/node_modules
+    ports:
+      - "5173:5173"  # Puerto por defecto de Vite
+    command: tail -f /dev/null   # <-- esto mantiene el contenedor vivo
+    networks:
+      - laravel
