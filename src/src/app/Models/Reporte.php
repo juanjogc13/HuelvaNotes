@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Reporte extends Model
+{
+    // Campos que se pueden rellenar masivamente
+    protected $fillable = ['user_id', 'apunte_id', 'motivo', 'resuelto'];
+
+    // El reporte pertenece a un usuario
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // El reporte pertenece a un apunte
+    public function apunte()
+    {
+        return $this->belongsTo(Apunte::class);
+    }
+}
