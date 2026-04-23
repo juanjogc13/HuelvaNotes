@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class TransaccionPuntos extends Model
 {
+    // Le decimos a Laravel el nombre real de la tabla
+    protected $table = 'transacciones_puntos';
+
     // Campos que se pueden rellenar masivamente
     protected $fillable = ['user_id', 'cantidad', 'tipo', 'apunte_id'];
 

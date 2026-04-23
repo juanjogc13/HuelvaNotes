@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Apunte extends Model
 {
+    // Le decimos a Laravel el nombre real de la tabla
+    protected $table = 'apuntes';
+
     // Campos que se pueden rellenar masivamente
     protected $fillable = [
         'titulo',

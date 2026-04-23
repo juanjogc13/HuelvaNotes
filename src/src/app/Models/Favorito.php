@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Favorito extends Model
 {
+    // Le decimos a Laravel el nombre real de la tabla
+    protected $table = 'favoritos';
+
     // Campos que se pueden rellenar masivamente
     protected $fillable = ['user_id', 'apunte_id'];
 

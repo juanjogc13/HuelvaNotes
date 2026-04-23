@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Reporte extends Model
 {
+    // Le decimos a Laravel el nombre real de la tabla
+    protected $table = 'reportes';
+
     // Campos que se pueden rellenar masivamente
     protected $fillable = ['user_id', 'apunte_id', 'motivo', 'resuelto'];
 
