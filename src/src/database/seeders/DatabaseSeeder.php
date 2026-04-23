@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CentroSeeder::class,
             NivelSeeder::class,
+            UserSeeder::class,
             CursoSeeder::class,
             AsignaturaSeeder::class,
         ]);
