@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ApunteController;
+use App\Http\Controllers\ApunteListadoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,6 +22,14 @@ Route::middleware('auth')->group(function () {
     // Ruta para cambiar la contraseña desde el perfil
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Rutas de Apuntes
+Route::middleware('auth')->group(function () {
+    Route::get('/apuntes', [ApunteListadoController::class, 'index'])->name('apuntes.index');
+    Route::get('/apuntes/subir', [ApunteController::class, 'create'])->name('apuntes.create');
+    Route::post('/apuntes', [ApunteController::class, 'store'])->name('apuntes.store');
+    Route::delete('/apuntes/{id}', [ApunteController::class, 'destroy'])->name('apuntes.destroy');
 });
 
 // Importante: aquí están las rutas de login, registro, etc.
