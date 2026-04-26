@@ -27,21 +27,92 @@
 
                 <form method="POST" action="{{ route('register') }}" class="space-y-6">
                     @csrf
+
+                    {{-- Mensajes de error --}}
+                    @if ($errors->any())
+                        <div class="bg-red-500/10 border border-red-500/30 rounded-2xl p-4">
+                            @foreach ($errors->all() as $error)
+                                <p class="text-red-400 text-xs">• {{ $error }}</p>
+                            @endforeach
+                        </div>
+                    @endif
                     
                     <div>
                         <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Nombre Completo</label>
-                        <input type="text" name="name" required autofocus class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 focus:bg-white/10 transition-all duration-300" placeholder="Ej. Juan Pérez">
+                        <input type="text" name="name" value="{{ old('name') }}" required autofocus class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 focus:bg-white/10 transition-all duration-300" placeholder="Ej. Juan Pérez">
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Email o Usuario</label>
-                        <input type="email" name="email" required class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 focus:bg-white/10 transition-all duration-300" placeholder="tu@email.com">
+                        <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Email</label>
+                        <input type="email" name="email" value="{{ old('email') }}" required class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 focus:bg-white/10 transition-all duration-300" placeholder="tu@email.com">
+                    </div>
+
+                    {{-- Selector de centro con buscador --}}
+                    <div x-data="{
+                        open: false,
+                        search: '',
+                        selected: null,
+                        selectedId: '',
+                        centros: {{ $centros->map(fn($c) => ['id' => $c->id, 'nombre' => $c->nombre, 'localidad' => $c->localidad])->toJson() }},
+                        get filtrados() {
+                            if (!this.search) return this.centros;
+                            return this.centros.filter(c =>
+                                (c.nombre + ' ' + c.localidad).toLowerCase().includes(this.search.toLowerCase())
+                            );
+                        },
+                        seleccionar(centro) {
+                            this.selected = centro.localidad + ' · ' + centro.nombre;
+                            this.selectedId = centro.id;
+                            this.open = false;
+                            this.search = '';
+                        }
+                    }" class="relative">
+                        <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Tu centro educativo</label>
+                        
+                        <input type="hidden" name="centro_id" :value="selectedId">
+
+                        <button type="button" @click="open = !open"
+                            class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-left transition-all duration-300 focus:outline-none relative"
+                            :class="open ? 'border-orange-500/50 bg-white/10' : 'hover:border-white/20'">
+                            <span :class="selected ? 'text-white' : 'text-white/20'" class="text-sm">
+                                <span x-text="selected || '— Selecciona tu centro (opcional) —'"></span>
+                            </span>
+                            <svg class="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+
+                        <div x-show="open" @click.away="open = false" x-transition
+                            class="absolute z-50 w-full mt-2 bg-black border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+                            
+                            <div class="p-3 border-b border-white/10">
+                                <input type="text" x-model="search" placeholder="Busca tu centro..."
+                                    class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none focus:border-orange-500/50">
+                            </div>
+
+                            <div class="max-h-52 overflow-y-auto">
+                                <button type="button" @click="selected = null; selectedId = ''; open = false"
+                                    class="w-full text-left px-5 py-3 text-white/30 hover:bg-white/5 text-sm transition">
+                                    — Sin centro —
+                                </button>
+                                <template x-for="centro in filtrados" :key="centro.id">
+                                    <button type="button" @click="seleccionar(centro)"
+                                        class="w-full text-left px-5 py-3 hover:bg-white/5 transition text-sm"
+                                        :class="selectedId == centro.id ? 'text-orange-500' : 'text-white/70'">
+                                        <span class="text-white/30 text-xs" x-text="centro.localidad + ' ·'"></span>
+                                        <span x-text="' ' + centro.nombre"></span>
+                                    </button>
+                                </template>
+                                <p x-show="filtrados.length === 0" class="text-white/30 text-sm px-5 py-3">No se encontró ningún centro.</p>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Contraseña</label>
                             <input type="password" name="password" required class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 focus:bg-white/10 transition-all duration-300" placeholder="••••••••">
+                            <p class="text-white/20 text-[10px] mt-1 ml-1">Mínimo 8 caracteres, mayúscula, número y símbolo</p>
                         </div>
 
                         <div>
@@ -68,5 +139,7 @@
             </p>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </body>
 </html>
