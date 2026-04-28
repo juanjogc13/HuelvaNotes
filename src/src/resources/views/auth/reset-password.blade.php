@@ -25,7 +25,7 @@
                     <p class="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] mt-3 italic">Actualiza tus credenciales</p>
                 </div>
 
-                <form method="POST" action="{{ route('password.update') }}" class="space-y-6">
+                <form method="POST" action="{{ route('password.store') }}" class="space-y-6">
                     @csrf
                     <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
