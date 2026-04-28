@@ -8,15 +8,19 @@ use App\Models\Nivel;
 use App\Models\Curso;
 use App\Models\Asignatura;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ApunteListadoController extends Controller
 {
     public function index(Request $request)
     {
+        // Usuario actual para comprobar descargas y puntos en las tarjetas
+        $user = Auth::user();
+
         // Cargamos los datos para los filtros de la barra lateral
-        $niveles    = Nivel::orderBy('nombre')->get();
-        $centros    = Centro::orderBy('localidad')->orderBy('nombre')->get();
-        $cursos     = Curso::orderBy('nombre')->get();
+        $niveles     = Nivel::orderBy('nombre')->get();
+        $centros     = Centro::orderBy('localidad')->orderBy('nombre')->get();
+        $cursos      = Curso::orderBy('nombre')->get();
         $asignaturas = Asignatura::orderBy('nombre')->get();
 
         // Construimos la query con los filtros aplicados
@@ -54,7 +58,8 @@ class ApunteListadoController extends Controller
             'niveles',
             'centros',
             'cursos',
-            'asignaturas'
+            'asignaturas',
+            'user'
         ));
     }
 }

@@ -10,11 +10,16 @@
 </head>
 <body class="antialiased bg-black text-white min-h-screen">
 
-    {{-- Navbar --}}
     <nav class="border-b border-white/10 px-8 py-4 flex items-center justify-between gap-6">
-        <a href="/dashboard" class="text-xl font-black tracking-tighter shrink-0">
-            <span class="text-orange-500">HUELVA</span><span class="text-white">NOTES</span>
-        </a>
+        <div class="flex items-center gap-6 shrink-0">
+            <a href="/dashboard" class="text-xl font-black tracking-tighter">
+                <span class="text-orange-500">HUELVA</span><span class="text-white">NOTES</span>
+            </a>
+            <a href="{{ route('apuntes.index') }}"
+                class="text-[10px] font-bold text-orange-500 uppercase tracking-widest hidden sm:block">
+                Explorar
+            </a>
+        </div>
 
         <form action="{{ route('apuntes.index') }}" method="GET" class="flex-1 max-w-2xl">
             <div class="relative">
@@ -79,7 +84,6 @@
 
     <div class="max-w-7xl mx-auto px-6 py-10">
 
-        {{-- Cabecera --}}
         <div class="flex items-center justify-between mb-8">
             <div>
                 <h2 class="text-3xl font-black tracking-tighter">Todos los <span class="text-orange-500">Apuntes</span></h2>
@@ -97,10 +101,8 @@
 
         <div class="flex gap-6">
 
-            {{-- Barra lateral de filtros --}}
             <form method="GET" action="{{ route('apuntes.index') }}" class="w-64 shrink-0 space-y-4">
 
-                {{-- Filtros activos --}}
                 @if(request()->hasAny(['nivel_id', 'curso_id', 'asignatura_id', 'centro_id', 'formato', 'q']))
                     <div class="bg-orange-500/10 border border-orange-500/30 rounded-2xl p-4">
                         <div class="flex items-center justify-between mb-2">
@@ -111,7 +113,6 @@
                     </div>
                 @endif
 
-                {{-- Nivel --}}
                 <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
                     <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3">Nivel</p>
                     <div class="space-y-2">
@@ -126,7 +127,6 @@
                     </div>
                 </div>
 
-                {{-- Curso --}}
                 <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
                     <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3">Curso</p>
                     <select name="curso_id"
@@ -140,7 +140,6 @@
                     </select>
                 </div>
 
-                {{-- Asignatura --}}
                 <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
                     <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3">Asignatura</p>
                     <select name="asignatura_id"
@@ -154,7 +153,6 @@
                     </select>
                 </div>
 
-                {{-- Centro --}}
                 <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
                     <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3">Centro</p>
                     <select name="centro_id"
@@ -168,7 +166,6 @@
                     </select>
                 </div>
 
-                {{-- Formato --}}
                 <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
                     <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3">Formato</p>
                     <div class="flex flex-wrap gap-2">
@@ -186,7 +183,6 @@
                     </div>
                 </div>
 
-                {{-- Botón aplicar --}}
                 <button type="submit"
                     class="w-full py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl transition uppercase tracking-widest text-xs">
                     Aplicar filtros
@@ -194,7 +190,6 @@
 
             </form>
 
-            {{-- Grid de apuntes --}}
             <div class="flex-1">
 
                 @if($apuntes->isEmpty())
@@ -210,10 +205,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                         @foreach($apuntes as $apunte)
                             <div class="bg-white/5 border border-white/10 rounded-3xl p-6 hover:border-orange-500/30 transition-all duration-300 group flex flex-col justify-between">
-
-                                {{-- Cabecera de la tarjeta --}}
                                 <div>
-                                    {{-- Formato badge --}}
                                     <div class="flex items-center justify-between mb-4">
                                         <span class="px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest
                                             {{ $apunte->formato === 'pdf' ? 'bg-red-500/20 text-red-400' :
@@ -224,54 +216,48 @@
                                         </span>
                                         <span class="text-white/20 text-xs">{{ $apunte->created_at->diffForHumans() }}</span>
                                     </div>
-
-                                    {{-- Título --}}
                                     <h3 class="text-white font-black text-base leading-snug mb-2 group-hover:text-orange-500 transition">
                                         {{ $apunte->titulo }}
                                     </h3>
-
-                                    {{-- Descripción --}}
                                     @if($apunte->descripcion)
                                         <p class="text-white/30 text-xs leading-relaxed mb-4 line-clamp-2">{{ $apunte->descripcion }}</p>
                                     @endif
-
-                                    {{-- Metadatos --}}
                                     <div class="space-y-1 mb-4">
-                                        <p class="text-white/30 text-xs">
-                                            📚 {{ $apunte->asignatura->nombre ?? '-' }} · {{ $apunte->curso->nombre ?? '-' }}
-                                        </p>
-                                        <p class="text-white/30 text-xs">
-                                            🏫 {{ $apunte->centro->nombre ?? '-' }}
-                                        </p>
-                                        <p class="text-white/30 text-xs">
-                                            👤 {{ $apunte->user->name ?? 'Anónimo' }}
-                                        </p>
+                                        <p class="text-white/30 text-xs">📚 {{ $apunte->asignatura->nombre ?? '-' }} · {{ $apunte->curso->nombre ?? '-' }}</p>
+                                        <p class="text-white/30 text-xs">🏫 {{ $apunte->centro->nombre ?? '-' }}</p>
+                                        <p class="text-white/30 text-xs">👤 {{ $apunte->user->name ?? 'Anónimo' }}</p>
                                     </div>
                                 </div>
-
-                                {{-- Footer de la tarjeta --}}
-                                <div class="flex items-center justify-between pt-4 border-t border-white/10">
-                                    <div class="flex items-center gap-3">
-                                        {{-- Valoración --}}
-                                        <span class="text-yellow-400 text-xs font-bold">
-                                            ⭐ {{ number_format($apunte->valoracion_media, 1) }}
-                                        </span>
-                                        {{-- Descargas --}}
-                                        <span class="text-white/20 text-xs">
-                                            📥 {{ $apunte->total_descargas }}
-                                        </span>
+                                <div class="pt-4 border-t border-white/10">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-yellow-400 text-xs font-bold">⭐ {{ number_format($apunte->valoracion_media, 1) }}</span>
+                                            <span class="text-white/20 text-xs">📥 {{ $apunte->total_descargas }}</span>
+                                        </div>
+                                        <span class="text-orange-500 font-black text-sm">{{ $apunte->coste_puntos }} pts</span>
                                     </div>
-                                    {{-- Coste --}}
-                                    <span class="text-orange-500 font-black text-sm">
-                                        {{ $apunte->coste_puntos }} pts
-                                    </span>
+                                    @if($apunte->user_id === Auth::id())
+                                        <span class="w-full block text-center py-2 text-white/20 text-xs uppercase tracking-widest">Tu apunte</span>
+                                    @elseif($user->descargas()->where('apunte_id', $apunte->id)->exists())
+                                        <form method="POST" action="{{ route('apuntes.download', $apunte->id) }}">
+                                            @csrf
+                                            <button type="submit" class="w-full py-2 bg-green-500/10 border border-green-500/30 text-green-400 font-bold rounded-xl text-xs uppercase tracking-widest hover:bg-green-500/20 transition">
+                                                ✅ Descargar de nuevo
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form method="POST" action="{{ route('apuntes.download', $apunte->id) }}">
+                                            @csrf
+                                            <button type="submit" class="w-full py-2 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-xl text-xs uppercase tracking-widest transition active:scale-95">
+                                                📥 Descargar · {{ $apunte->coste_puntos }} pts
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
-
                             </div>
                         @endforeach
                     </div>
 
-                    {{-- Paginación --}}
                     @if($apuntes->hasPages())
                         <div class="mt-8 flex justify-center gap-2">
                             @if($apuntes->onFirstPage())
@@ -279,14 +265,12 @@
                             @else
                                 <a href="{{ $apuntes->previousPageUrl() }}" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white/60 hover:text-white hover:border-orange-500/40 transition text-sm">← Anterior</a>
                             @endif
-
                             @foreach($apuntes->getUrlRange(1, $apuntes->lastPage()) as $page => $url)
                                 <a href="{{ $url }}" class="px-4 py-2 rounded-xl text-sm transition
                                     {{ $page == $apuntes->currentPage() ? 'bg-orange-600 text-white font-bold' : 'bg-white/5 border border-white/10 text-white/60 hover:text-white hover:border-orange-500/40' }}">
                                     {{ $page }}
                                 </a>
                             @endforeach
-
                             @if($apuntes->hasMorePages())
                                 <a href="{{ $apuntes->nextPageUrl() }}" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white/60 hover:text-white hover:border-orange-500/40 transition text-sm">Siguiente →</a>
                             @else
@@ -294,7 +278,6 @@
                             @endif
                         </div>
                     @endif
-
                 @endif
             </div>
         </div>

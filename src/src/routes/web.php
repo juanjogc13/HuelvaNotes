@@ -19,7 +19,6 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    // Ruta para cambiar la contraseña desde el perfil
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
@@ -29,6 +28,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/apuntes', [ApunteListadoController::class, 'index'])->name('apuntes.index');
     Route::get('/apuntes/subir', [ApunteController::class, 'create'])->name('apuntes.create');
     Route::post('/apuntes', [ApunteController::class, 'store'])->name('apuntes.store');
+    // Ruta para descargar un apunte con control de puntos
+    Route::post('/apuntes/{id}/descargar', [ApunteController::class, 'download'])->name('apuntes.download');
     Route::delete('/apuntes/{id}', [ApunteController::class, 'destroy'])->name('apuntes.destroy');
 });
 

@@ -10,14 +10,19 @@
 </head>
 <body class="antialiased bg-black text-white min-h-screen">
 
-    {{-- Navbar --}}
     <nav class="border-b border-white/10 px-8 py-4 flex items-center justify-between gap-6">
-        <a href="/dashboard" class="text-xl font-black tracking-tighter shrink-0">
-            <span class="text-orange-500">HUELVA</span><span class="text-white">NOTES</span>
-        </a>
+        <div class="flex items-center gap-6 shrink-0">
+            <a href="/dashboard" class="text-xl font-black tracking-tighter">
+                <span class="text-orange-500">HUELVA</span><span class="text-white">NOTES</span>
+            </a>
+            <a href="{{ route('apuntes.index') }}"
+                class="text-[10px] font-bold text-white/40 uppercase tracking-widest hover:text-orange-500 transition hidden sm:block">
+                Explorar
+            </a>
+        </div>
 
         <div class="flex-1 max-w-2xl">
-            <form action="/buscar" method="GET">
+            <form action="{{ route('apuntes.index') }}" method="GET">
                 <div class="relative">
                     <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
@@ -80,13 +85,11 @@
 
     <div class="max-w-5xl mx-auto px-6 py-10">
 
-        {{-- Cabecera --}}
         <div class="mb-10">
             <h2 class="text-3xl font-black tracking-tighter">Mi <span class="text-orange-500">Perfil</span></h2>
             <p class="text-white/30 text-sm mt-1 uppercase tracking-widest">Gestiona tu cuenta y preferencias</p>
         </div>
 
-        {{-- Mensajes de éxito --}}
         @if(session('status') === 'perfil-actualizado')
             <div class="bg-green-500/10 border border-green-500/30 rounded-2xl p-4 mb-6">
                 <p class="text-green-400 text-sm">✅ Perfil actualizado correctamente.</p>
@@ -97,8 +100,12 @@
                 <p class="text-green-400 text-sm">✅ Contraseña actualizada correctamente.</p>
             </div>
         @endif
+        @if(session('status') === 'apunte-eliminado')
+            <div class="bg-green-500/10 border border-green-500/30 rounded-2xl p-4 mb-6">
+                <p class="text-green-400 text-sm">✅ Apunte eliminado correctamente.</p>
+            </div>
+        @endif
 
-        {{-- Errores --}}
         @if($errors->any())
             <div class="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 mb-6">
                 @foreach($errors->all() as $error)
@@ -109,10 +116,8 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            {{-- Columna izquierda: foto y estadísticas --}}
             <div class="space-y-4">
 
-                {{-- Foto de perfil --}}
                 <div class="bg-white/5 border border-white/10 rounded-3xl p-8 text-center">
                     <div class="w-24 h-24 rounded-full overflow-hidden bg-orange-500 flex items-center justify-center font-black text-black text-3xl mx-auto mb-4">
                         @if($user->foto)
@@ -126,8 +131,6 @@
                     @if($user->centro)
                         <p class="text-orange-500 text-xs mt-2">{{ $user->centro->nombre }}</p>
                     @endif
-
-                    {{-- Formulario para cambiar foto --}}
                     <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="mt-4">
                         @csrf
                         @method('PATCH')
@@ -143,7 +146,6 @@
                     </form>
                 </div>
 
-                {{-- Estadísticas --}}
                 <div class="bg-white/5 border border-white/10 rounded-3xl p-6">
                     <h3 class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-4">Tus estadísticas</h3>
                     <div class="space-y-3">
@@ -166,7 +168,6 @@
                     </div>
                 </div>
 
-                {{-- Historial de puntos --}}
                 <div class="bg-white/5 border border-white/10 rounded-3xl p-6">
                     <h3 class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-4">Últimos movimientos</h3>
                     @forelse($historialPuntos as $t)
@@ -183,29 +184,23 @@
 
             </div>
 
-            {{-- Columna derecha: formularios --}}
             <div class="lg:col-span-2 space-y-4">
 
-                {{-- Datos personales --}}
                 <div class="bg-white/5 border border-white/10 rounded-3xl p-8">
                     <h3 class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-6">Datos personales</h3>
                     <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="space-y-5">
                         @csrf
                         @method('PATCH')
-
                         <div>
                             <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Nombre</label>
                             <input type="text" name="name" value="{{ old('name', $user->name) }}" required
                                 class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 transition-all duration-300">
                         </div>
-
                         <div>
                             <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Email</label>
                             <input type="email" name="email" value="{{ old('email', $user->email) }}" required
                                 class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 transition-all duration-300">
                         </div>
-
-                        {{-- Selector de centro --}}
                         <div x-data="{
                             open: false,
                             search: '',
@@ -257,46 +252,39 @@
                                 </div>
                             </div>
                         </div>
-
                         <button type="submit" class="w-full py-4 bg-orange-600 text-white font-black rounded-2xl hover:bg-orange-500 transition uppercase tracking-widest text-xs">
                             Guardar cambios
                         </button>
                     </form>
                 </div>
 
-                {{-- Cambiar contraseña --}}
                 <div class="bg-white/5 border border-white/10 rounded-3xl p-8">
                     <h3 class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-6">Cambiar contraseña</h3>
                     <form method="POST" action="{{ route('profile.password') }}" class="space-y-5">
                         @csrf
                         @method('PATCH')
-
                         <div>
                             <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Contraseña actual</label>
                             <input type="password" name="current_password" required
                                 class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 transition-all duration-300" placeholder="••••••••">
                         </div>
-
                         <div>
                             <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Nueva contraseña</label>
                             <input type="password" name="password" required
                                 class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 transition-all duration-300" placeholder="••••••••">
                             <p class="text-white/20 text-[10px] mt-1 ml-1">Mínimo 8 caracteres, mayúscula y carácter especial</p>
                         </div>
-
                         <div>
                             <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Repetir nueva contraseña</label>
                             <input type="password" name="password_confirmation" required
                                 class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 transition-all duration-300" placeholder="••••••••">
                         </div>
-
                         <button type="submit" class="w-full py-4 bg-white/10 text-white font-black rounded-2xl hover:bg-white/20 transition uppercase tracking-widest text-xs">
                             Cambiar contraseña
                         </button>
                     </form>
                 </div>
 
-                {{-- Mis apuntes --}}
                 <div class="bg-white/5 border border-white/10 rounded-3xl p-8">
                     <h3 class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-6">📁 Mis apuntes</h3>
                     @forelse($apuntes as $apunte)
@@ -305,7 +293,7 @@
                                 <p class="text-white font-semibold text-sm">{{ $apunte->titulo }}</p>
                                 <p class="text-white/30 text-xs mt-1">{{ $apunte->created_at->diffForHumans() }}</p>
                             </div>
-                            <form method="POST" action="/apuntes/{{ $apunte->id }}">
+                            <form method="POST" action="{{ route('apuntes.destroy', $apunte->id) }}">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" onclick="return confirm('¿Seguro que quieres eliminar este apunte?')"
@@ -319,7 +307,6 @@
                     @endforelse
                 </div>
 
-                {{-- Favoritos --}}
                 <div class="bg-white/5 border border-white/10 rounded-3xl p-8">
                     <h3 class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-6">⭐ Mis favoritos</h3>
                     @forelse($favoritos as $favorito)
@@ -332,7 +319,6 @@
                     @endforelse
                 </div>
 
-                {{-- Eliminar cuenta --}}
                 <div class="bg-red-500/5 border border-red-500/20 rounded-3xl p-8">
                     <h3 class="text-[10px] font-bold text-red-400 uppercase tracking-widest mb-2">Zona de peligro</h3>
                     <p class="text-white/30 text-sm mb-6">Si eliminas tu cuenta perderás todos tus apuntes, puntos y datos. Esta acción no se puede deshacer.</p>

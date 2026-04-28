@@ -26,9 +26,9 @@ class Apunte extends Model
     ];
 
     // El apunte pertenece a un usuario
-    public function usuario()
+    public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     // El apunte pertenece a un centro

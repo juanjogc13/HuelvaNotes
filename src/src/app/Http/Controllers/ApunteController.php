@@ -85,6 +85,74 @@ class ApunteController extends Controller
         return redirect()->route('dashboard')->with('status', 'apunte-subido');
     }
 
+    // Descarga un apunte restando puntos al usuario
+    public function download($id)
+    {
+        $apunte = Apunte::findOrFail($id);
+        $user = Auth::user();
+
+        // No puedes descargar tu propio apunte
+        if ($apunte->user_id === $user->id) {
+            return back()->with('error', 'No puedes descargar tu propio apunte.');
+        }
+
+        // Comprobamos si ya lo había descargado antes
+        $yaDescargado = $user->descargas()->where('apunte_id', $apunte->id)->exists();
+
+        if (!$yaDescargado) {
+            // Comprobamos que tiene puntos suficientes
+            if ($user->puntos < $apunte->coste_puntos) {
+                return back()->with('error', 'No tienes suficientes puntos. Sube apuntes para ganar más.');
+            }
+
+            // Restamos los puntos al usuario
+            $user->puntos -= $apunte->coste_puntos;
+            $user->save();
+
+            // Registramos la descarga
+            \App\Models\Descarga::create([
+                'user_id'   => $user->id,
+                'apunte_id' => $apunte->id,
+            ]);
+
+            // Registramos la transacción del que descarga
+            TransaccionPuntos::create([
+                'user_id'   => $user->id,
+                'cantidad'  => -$apunte->coste_puntos,
+                'tipo'      => 'descarga',
+                'apunte_id' => $apunte->id,
+            ]);
+
+            // Actualizamos el contador de descargas del apunte
+            $apunte->increment('total_descargas');
+
+            // Si el apunte tiene autor registrado le sumamos puntos y notificamos
+            $autor = $apunte->user;
+            if ($autor) {
+                $autor->puntos += 3;
+                $autor->save();
+
+                // Registramos la transacción del autor
+                TransaccionPuntos::create([
+                    'user_id'   => $autor->id,
+                    'cantidad'  => 3,
+                    'tipo'      => 'descarga',
+                    'apunte_id' => $apunte->id,
+                ]);
+
+                // Notificamos al autor
+                \App\Models\Notificacion::create([
+                    'user_id' => $autor->id,
+                    'mensaje' => $user->name . ' ha descargado tu apunte "' . $apunte->titulo . '" (+3 pts)',
+                    'url'     => '/apuntes',
+                ]);
+            }
+        }
+
+        // Descargamos el archivo
+        return Storage::disk('public')->download($apunte->archivo, $apunte->titulo . '.' . $apunte->formato);
+    }
+
     // Elimina un apunte
     public function destroy($id)
     {
@@ -97,6 +165,19 @@ class ApunteController extends Controller
 
         // Borramos el archivo físico del storage
         Storage::disk('public')->delete($apunte->archivo);
+
+        // Restamos los 20 puntos que ganó al subirlo
+        $user = Auth::user();
+        $user->puntos = max(0, $user->puntos - 20);
+        $user->save();
+
+        // Registramos la transacción de puntos
+        TransaccionPuntos::create([
+            'user_id'   => $user->id,
+            'cantidad'  => -20,
+            'tipo'      => 'eliminacion',
+            'apunte_id' => $apunte->id,
+        ]);
 
         $apunte->delete();
 

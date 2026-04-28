@@ -10,13 +10,18 @@
 </head>
 <body class="antialiased bg-black text-white min-h-screen">
 
-    {{-- Navbar --}}
     <nav class="border-b border-white/10 px-8 py-4 flex items-center justify-between gap-6">
-        <a href="/dashboard" class="text-xl font-black tracking-tighter shrink-0">
-            <span class="text-orange-500">HUELVA</span><span class="text-white">NOTES</span>
-        </a>
+        <div class="flex items-center gap-6 shrink-0">
+            <a href="/dashboard" class="text-xl font-black tracking-tighter">
+                <span class="text-orange-500">HUELVA</span><span class="text-white">NOTES</span>
+            </a>
+            <a href="{{ route('apuntes.index') }}"
+                class="text-[10px] font-bold text-white/40 uppercase tracking-widest hover:text-orange-500 transition hidden sm:block">
+                Explorar
+            </a>
+        </div>
 
-        <form action="/buscar" method="GET" class="flex-1 max-w-2xl">
+        <form action="{{ route('apuntes.index') }}" method="GET" class="flex-1 max-w-2xl">
             <div class="relative">
                 <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
@@ -79,7 +84,6 @@
 
     <div class="max-w-3xl mx-auto px-6 py-10">
 
-        {{-- Cabecera --}}
         <div class="mb-10">
             <a href="{{ route('dashboard') }}" class="text-white/30 text-xs uppercase tracking-widest hover:text-orange-500 transition flex items-center gap-2 mb-4">
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,7 +95,6 @@
             <p class="text-white/30 text-sm mt-1 uppercase tracking-widest">Comparte tu material y gana <span class="text-orange-500 font-bold">+20 puntos</span></p>
         </div>
 
-        {{-- Errores --}}
         @if($errors->any())
             <div class="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 mb-6">
                 @foreach($errors->all() as $error)
@@ -103,7 +106,6 @@
         <form method="POST" action="{{ route('apuntes.store') }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
-            {{-- Zona de subida de archivo --}}
             <div x-data="{
                 archivo: null,
                 nombre: '',
@@ -119,8 +121,6 @@
                 }
             }">
                 <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Archivo</label>
-
-                {{-- Dropzone --}}
                 <div
                     @dragover.prevent="dragover = true"
                     @dragleave="dragover = false"
@@ -128,12 +128,9 @@
                     @click="$refs.fileInput.click()"
                     :class="dragover ? 'border-orange-500 bg-orange-500/10' : 'border-white/10 hover:border-orange-500/40'"
                     class="relative border-2 border-dashed rounded-3xl p-10 text-center cursor-pointer transition-all duration-300">
-
                     <input type="file" id="archivo-input" name="archivo" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png"
                         class="hidden" x-ref="fileInput"
                         @change="seleccionar($event.target.files)">
-
-                    {{-- Estado sin archivo --}}
                     <div x-show="!archivo">
                         <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
                             <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,8 +141,6 @@
                         <p class="text-white/30 text-xs mt-1">o haz clic para seleccionarlo</p>
                         <p class="text-white/20 text-[10px] mt-3 uppercase tracking-widest">PDF · DOCX · PPTX · JPG · PNG · Máx. 15MB</p>
                     </div>
-
-                    {{-- Estado con archivo seleccionado --}}
                     <div x-show="archivo" class="flex items-center justify-center gap-4">
                         <div class="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center">
                             <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,7 +155,6 @@
                 </div>
             </div>
 
-            {{-- Título --}}
             <div>
                 <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Título</label>
                 <input type="text" name="titulo" value="{{ old('titulo') }}" required maxlength="100"
@@ -168,7 +162,6 @@
                     class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 focus:bg-white/10 transition-all duration-300">
             </div>
 
-            {{-- Descripción --}}
             <div>
                 <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Descripción <span class="text-white/20">(opcional)</span></label>
                 <textarea name="descripcion" rows="3" maxlength="500"
@@ -176,7 +169,6 @@
                     class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 focus:bg-white/10 transition-all duration-300 resize-none">{{ old('descripcion') }}</textarea>
             </div>
 
-            {{-- Centro --}}
             <div x-data="{
                 open: false,
                 search: '',
@@ -225,7 +217,6 @@
                 </div>
             </div>
 
-            {{-- Nivel → Curso → Asignatura en cascada --}}
             <div x-data="{
                 niveles: {{ $niveles->map(fn($n) => ['id' => $n->id, 'nombre' => $n->nombre])->toJson() }},
                 cursos: {{ $cursos->map(fn($c) => ['id' => $c->id, 'nombre' => $c->nombre, 'nivel_id' => $c->nivel_id])->toJson() }},
@@ -240,8 +231,6 @@
                     return this.asignaturas.filter(a => a.curso_id == this.cursoId);
                 }
             }" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
-                {{-- Nivel --}}
                 <div>
                     <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Nivel</label>
                     <select name="nivel_id" x-model="nivelId" @change="cursoId = ''; asignaturaId = ''" required
@@ -252,8 +241,6 @@
                         </template>
                     </select>
                 </div>
-
-                {{-- Curso --}}
                 <div>
                     <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Curso</label>
                     <select name="curso_id" x-model="cursoId" @change="asignaturaId = ''" required :disabled="!nivelId"
@@ -264,8 +251,6 @@
                         </template>
                     </select>
                 </div>
-
-                {{-- Asignatura --}}
                 <div>
                     <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Asignatura</label>
                     <select name="asignatura_id" x-model="asignaturaId" required :disabled="!cursoId"
@@ -276,10 +261,8 @@
                         </template>
                     </select>
                 </div>
-
             </div>
 
-            {{-- Botón enviar --}}
             <div class="pt-4">
                 <button type="submit"
                     class="w-full py-5 bg-orange-600 text-white font-black rounded-2xl hover:bg-orange-500 shadow-2xl shadow-orange-900/40 transform active:scale-95 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-3">
