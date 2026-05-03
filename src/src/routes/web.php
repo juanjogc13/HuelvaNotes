@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ApunteController;
 use App\Http\Controllers\ApunteListadoController;
+use App\Http\Controllers\ValoracionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -28,9 +29,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/apuntes', [ApunteListadoController::class, 'index'])->name('apuntes.index');
     Route::get('/apuntes/subir', [ApunteController::class, 'create'])->name('apuntes.create');
     Route::post('/apuntes', [ApunteController::class, 'store'])->name('apuntes.store');
-    // Ruta para descargar un apunte con control de puntos
     Route::post('/apuntes/{id}/descargar', [ApunteController::class, 'download'])->name('apuntes.download');
     Route::delete('/apuntes/{id}', [ApunteController::class, 'destroy'])->name('apuntes.destroy');
+    // Ruta para valorar un apunte
+    Route::post('/apuntes/{id}/valorar', [ValoracionController::class, 'store'])->name('apuntes.valorar');
 });
 
 // Importante: aquí están las rutas de login, registro, etc.

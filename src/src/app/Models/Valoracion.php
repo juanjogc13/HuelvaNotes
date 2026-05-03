@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\User;
+use App\Models\Apunte;
 use Illuminate\Database\Eloquent\Model;
 
 class Valoracion extends Model
 {
-    // Le decimos a Laravel el nombre real de la tabla
     protected $table = 'valoraciones';
 
-    // Campos que se pueden rellenar masivamente
     protected $fillable = ['user_id', 'apunte_id', 'puntuacion', 'comentario'];
 
     // La valoración pertenece a un usuario

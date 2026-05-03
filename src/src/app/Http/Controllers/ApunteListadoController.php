@@ -24,7 +24,7 @@ class ApunteListadoController extends Controller
         $asignaturas = Asignatura::orderBy('nombre')->get();
 
         // Construimos la query con los filtros aplicados
-        $query = Apunte::with(['user', 'asignatura', 'centro', 'nivel', 'curso'])
+        $query = Apunte::with(['user', 'asignatura', 'centro', 'nivel', 'curso', 'valoraciones.usuario'])
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('nivel_id')) {

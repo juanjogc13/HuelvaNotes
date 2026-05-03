@@ -2,6 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\User;
+use App\Models\Centro;
+use App\Models\Nivel;
+use App\Models\Curso;
+use App\Models\Asignatura;
+use App\Models\Descarga;
+use App\Models\Valoracion;
+use App\Models\Etiqueta;
+use App\Models\Favorito;
+use App\Models\Reporte;
 use Illuminate\Database\Eloquent\Model;
 
 class Apunte extends Model
