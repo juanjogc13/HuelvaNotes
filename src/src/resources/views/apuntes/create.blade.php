@@ -15,10 +15,18 @@
             <a href="/dashboard" class="text-xl font-black tracking-tighter">
                 <span class="text-orange-500">HUELVA</span><span class="text-white">NOTES</span>
             </a>
+
             <a href="{{ route('apuntes.index') }}"
                 class="text-[10px] font-bold text-white/40 uppercase tracking-widest hover:text-orange-500 transition hidden sm:block">
                 Explorar
             </a>
+
+            @if(in_array(Auth::user()->rol, ['admin', 'moderador']))
+                <a href="{{ route('moderacion.index') }}"
+                    class="text-[10px] font-bold text-white/40 uppercase tracking-widest hover:text-orange-500 transition hidden sm:block">
+                    Solicitudes
+                </a>
+            @endif
         </div>
 
         <form action="{{ route('apuntes.index') }}" method="GET" class="flex-1 max-w-2xl">
@@ -40,40 +48,48 @@
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     @endif
                 </div>
+
                 <div class="text-left hidden sm:block">
                     <p class="text-white text-xs font-bold">{{ Auth::user()->name }}</p>
-                    <p class="text-orange-500 text-[10px] uppercase tracking-widest">{{ $user->puntos }} pts</p>
+                    <p class="text-orange-500 text-[10px] uppercase tracking-widest">
+                        {{ $user->puntos }} pts
+                        @if(in_array(Auth::user()->rol, ['admin', 'moderador']))
+                            · {{ Auth::user()->rol }}
+                        @endif
+                    </p>
                 </div>
+
                 <svg class="w-4 h-4 text-white/30 group-hover:text-orange-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
             </button>
 
             <div x-show="open" @click.away="open = false" x-transition
-                class="absolute right-0 mt-3 w-52 bg-black border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50">
+                class="absolute right-0 mt-3 w-52 bg-black border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50"
+                style="display: none;">
                 <div class="px-5 py-4 border-b border-white/10">
                     <p class="text-white text-sm font-bold">{{ Auth::user()->name }}</p>
                     <p class="text-white/30 text-xs">{{ Auth::user()->email }}</p>
                 </div>
+
                 <a href="/profile" class="flex items-center gap-3 px-5 py-3 text-white/60 hover:text-white hover:bg-white/5 transition text-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z"/>
-                    </svg>
                     Mi perfil
                 </a>
+
                 <a href="/dashboard" class="flex items-center gap-3 px-5 py-3 text-white/60 hover:text-white hover:bg-white/5 transition text-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m10-11l2 2m-2-2v10a1 1 0 0 1-1 1h-3m-6 0h6"/>
-                    </svg>
                     Dashboard
                 </a>
+
+                @if(in_array(Auth::user()->rol, ['admin', 'moderador']))
+                    <a href="{{ route('moderacion.index') }}" class="flex items-center gap-3 px-5 py-3 text-orange-500 hover:text-orange-400 hover:bg-white/5 transition text-sm">
+                        Solicitudes
+                    </a>
+                @endif
+
                 <div class="border-t border-white/10">
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="w-full flex items-center gap-3 px-5 py-3 text-red-400 hover:text-red-300 hover:bg-white/5 transition text-sm">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1"/>
-                            </svg>
                             Cerrar sesión
                         </button>
                     </form>
@@ -91,8 +107,12 @@
                 </svg>
                 Volver al dashboard
             </a>
+
             <h2 class="text-3xl font-black tracking-tighter">Subir <span class="text-orange-500">Apunte</span></h2>
-            <p class="text-white/30 text-sm mt-1 uppercase tracking-widest">Comparte tu material y gana <span class="text-orange-500 font-bold">+20 puntos</span></p>
+
+            <p class="text-white/30 text-sm mt-1 uppercase tracking-widest">
+                Tu apunte quedará pendiente hasta que un moderador lo apruebe
+            </p>
         </div>
 
         @if($errors->any())
@@ -106,6 +126,7 @@
         <form method="POST" action="{{ route('apuntes.store') }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
+            {{-- Archivo --}}
             <div x-data="{
                 archivo: null,
                 nombre: '',
@@ -121,6 +142,7 @@
                 }
             }">
                 <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Archivo</label>
+
                 <div
                     @dragover.prevent="dragover = true"
                     @dragleave="dragover = false"
@@ -128,9 +150,11 @@
                     @click="$refs.fileInput.click()"
                     :class="dragover ? 'border-orange-500 bg-orange-500/10' : 'border-white/10 hover:border-orange-500/40'"
                     class="relative border-2 border-dashed rounded-3xl p-10 text-center cursor-pointer transition-all duration-300">
+
                     <input type="file" id="archivo-input" name="archivo" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png"
                         class="hidden" x-ref="fileInput"
                         @change="seleccionar($event.target.files)">
+
                     <div x-show="!archivo">
                         <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
                             <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,12 +165,14 @@
                         <p class="text-white/30 text-xs mt-1">o haz clic para seleccionarlo</p>
                         <p class="text-white/20 text-[10px] mt-3 uppercase tracking-widest">PDF · DOCX · PPTX · JPG · PNG · Máx. 15MB</p>
                     </div>
-                    <div x-show="archivo" class="flex items-center justify-center gap-4">
+
+                    <div x-show="archivo" class="flex items-center justify-center gap-4" style="display: none;">
                         <div class="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center">
                             <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                         </div>
+
                         <div class="text-left">
                             <p class="text-white font-bold text-sm" x-text="nombre"></p>
                             <p class="text-white/30 text-xs" x-text="tamanio"></p>
@@ -155,6 +181,7 @@
                 </div>
             </div>
 
+            {{-- Título --}}
             <div>
                 <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Título</label>
                 <input type="text" name="titulo" value="{{ old('titulo') }}" required maxlength="100"
@@ -162,115 +189,165 @@
                     class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 focus:bg-white/10 transition-all duration-300">
             </div>
 
+            {{-- Descripción --}}
             <div>
-                <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Descripción <span class="text-white/20">(opcional)</span></label>
+                <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">
+                    Descripción <span class="text-white/20">(opcional)</span>
+                </label>
                 <textarea name="descripcion" rows="3" maxlength="500"
                     placeholder="Describe brevemente el contenido del apunte..."
                     class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 focus:bg-white/10 transition-all duration-300 resize-none">{{ old('descripcion') }}</textarea>
             </div>
 
-            <div x-data="{
-                open: false,
-                search: '',
-                selected: '{{ $user->centro ? $user->centro->localidad . ' · ' . $user->centro->nombre : '' }}',
-                selectedId: '{{ $user->centro_id ?? '' }}',
-                centros: {{ $centros->map(fn($c) => ['id' => $c->id, 'nombre' => $c->nombre, 'localidad' => $c->localidad])->toJson() }},
-                get filtrados() {
-                    if (!this.search) return this.centros;
-                    return this.centros.filter(c =>
-                        (c.nombre + ' ' + c.localidad).toLowerCase().includes(this.search.toLowerCase())
-                    );
-                },
-                seleccionar(centro) {
-                    this.selected = centro.localidad + ' · ' + centro.nombre;
-                    this.selectedId = centro.id;
-                    this.open = false;
-                    this.search = '';
-                }
-            }" class="relative">
-                <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Centro educativo</label>
-                <input type="hidden" name="centro_id" :value="selectedId">
-                <button type="button" @click="open = !open"
-                    class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-left transition-all duration-300 relative"
-                    :class="open ? 'border-orange-500/50' : 'hover:border-white/20'">
-                    <span :class="selected ? 'text-white' : 'text-white/20'" class="text-sm" x-text="selected || '— Selecciona un centro —'"></span>
-                    <svg class="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-                <div x-show="open" @click.away="open = false" x-transition
-                    class="absolute z-50 w-full mt-2 bg-black border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
-                    <div class="p-3 border-b border-white/10">
-                        <input type="text" x-model="search" placeholder="Busca tu centro..."
-                            class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none">
-                    </div>
-                    <div class="max-h-48 overflow-y-auto">
-                        <template x-for="centro in filtrados" :key="centro.id">
-                            <button type="button" @click="seleccionar(centro)"
-                                class="w-full text-left px-5 py-3 hover:bg-white/5 transition text-sm"
-                                :class="selectedId == centro.id ? 'text-orange-500' : 'text-white/70'">
-                                <span class="text-white/30 text-xs" x-text="centro.localidad + ' ·'"></span>
-                                <span x-text="' ' + centro.nombre"></span>
-                            </button>
-                        </template>
-                    </div>
-                </div>
+            {{-- Centro fijo del usuario --}}
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
+                <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2">Centro educativo</p>
+
+                <p class="text-white font-bold text-sm">
+                    {{ $user->centro->localidad ?? '' }}
+                    @if($user->centro)
+                        ·
+                    @endif
+                    {{ $user->centro->nombre ?? 'Sin centro asignado' }}
+                </p>
+
+                <p class="text-white/30 text-xs mt-1">
+                    Este centro se toma automáticamente de tu perfil. Si no es correcto, actualízalo desde Mi perfil.
+                </p>
             </div>
 
+            {{-- Nivel → Titulación → Curso → Asignatura --}}
             <div x-data="{
-                niveles: {{ $niveles->map(fn($n) => ['id' => $n->id, 'nombre' => $n->nombre])->toJson() }},
-                cursos: {{ $cursos->map(fn($c) => ['id' => $c->id, 'nombre' => $c->nombre, 'nivel_id' => $c->nivel_id])->toJson() }},
-                asignaturas: {{ $asignaturas->map(fn($a) => ['id' => $a->id, 'nombre' => $a->nombre, 'curso_id' => $a->curso_id])->toJson() }},
-                nivelId: '',
-                cursoId: '',
-                asignaturaId: '',
-                get cursosFiltrados() {
-                    return this.cursos.filter(c => c.nivel_id == this.nivelId);
+                niveles: {{ $niveles->map(fn($n) => ['id' => $n->id, 'nombre' => $n->nombre])->values()->toJson() }},
+                titulaciones: {{ $titulaciones->map(fn($t) => ['id' => $t->id, 'nombre' => $t->nombre, 'nivel_id' => $t->nivel_id, 'centro_id' => $t->centro_id])->values()->toJson() }},
+                cursos: {{ $cursos->map(fn($c) => ['id' => $c->id, 'nombre' => $c->nombre, 'nivel_id' => $c->nivel_id, 'titulacion_id' => $c->titulacion_id])->values()->toJson() }},
+                asignaturas: {{ $asignaturas->map(fn($a) => ['id' => $a->id, 'nombre' => $a->nombre, 'curso_id' => $a->curso_id])->values()->toJson() }},
+
+                nivelId: '{{ old('nivel_id') }}',
+                titulacionId: '{{ old('titulacion_id') }}',
+                cursoId: '{{ old('curso_id') }}',
+                asignaturaId: '{{ old('asignatura_id') }}',
+
+                get titulacionesFiltradas() {
+                    if (!this.nivelId) return [];
+                    return this.titulaciones.filter(t => t.nivel_id == this.nivelId);
                 },
+
+                get cursosFiltrados() {
+                    if (!this.titulacionId) return [];
+                    return this.cursos.filter(c => c.titulacion_id == this.titulacionId);
+                },
+
                 get asignaturasFiltradas() {
+                    if (!this.cursoId) return [];
                     return this.asignaturas.filter(a => a.curso_id == this.cursoId);
                 }
-            }" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Nivel</label>
-                    <select name="nivel_id" x-model="nivelId" @change="cursoId = ''; asignaturaId = ''" required
-                        class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 transition-all duration-300 appearance-none">
-                        <option value="" class="bg-black">— Nivel —</option>
-                        <template x-for="nivel in niveles" :key="nivel.id">
-                            <option :value="nivel.id" class="bg-black" x-text="nivel.nombre"></option>
-                        </template>
-                    </select>
+            }" class="space-y-4">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {{-- Nivel --}}
+                    <div>
+                        <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Nivel</label>
+                        <select name="nivel_id"
+                            x-model="nivelId"
+                            @change="titulacionId = ''; cursoId = ''; asignaturaId = ''"
+                            required
+                            class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 transition-all duration-300 appearance-none">
+                            <option value="" class="bg-black">— Nivel —</option>
+
+                            <template x-for="nivel in niveles" :key="nivel.id">
+                                <option :value="nivel.id" class="bg-black" x-text="nivel.nombre"></option>
+                            </template>
+                        </select>
+                    </div>
+
+                    {{-- Titulación --}}
+                    <div>
+                        <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">
+                            Titulación / Ciclo / Carrera
+                        </label>
+                        <select name="titulacion_id"
+                            x-model="titulacionId"
+                            @change="cursoId = ''; asignaturaId = ''"
+                            required
+                            :disabled="!nivelId"
+                            class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 transition-all duration-300 appearance-none disabled:opacity-30">
+                            <option value="" class="bg-black">— Titulación —</option>
+
+                            <template x-for="titulacion in titulacionesFiltradas" :key="titulacion.id">
+                                <option :value="titulacion.id" class="bg-black" x-text="titulacion.nombre"></option>
+                            </template>
+                        </select>
+
+                        <p x-show="nivelId && titulacionesFiltradas.length === 0"
+                           class="text-red-400/70 text-[10px] mt-2 uppercase tracking-widest"
+                           style="display: none;">
+                            No hay titulaciones cargadas para tu centro y ese nivel.
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Curso</label>
-                    <select name="curso_id" x-model="cursoId" @change="asignaturaId = ''" required :disabled="!nivelId"
-                        class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 transition-all duration-300 appearance-none disabled:opacity-30">
-                        <option value="" class="bg-black">— Curso —</option>
-                        <template x-for="curso in cursosFiltrados" :key="curso.id">
-                            <option :value="curso.id" class="bg-black" x-text="curso.nombre"></option>
-                        </template>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Asignatura</label>
-                    <select name="asignatura_id" x-model="asignaturaId" required :disabled="!cursoId"
-                        class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 transition-all duration-300 appearance-none disabled:opacity-30">
-                        <option value="" class="bg-black">— Asignatura —</option>
-                        <template x-for="asignatura in asignaturasFiltradas" :key="asignatura.id">
-                            <option :value="asignatura.id" class="bg-black" x-text="asignatura.nombre"></option>
-                        </template>
-                    </select>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {{-- Curso --}}
+                    <div>
+                        <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Curso</label>
+                        <select name="curso_id"
+                            x-model="cursoId"
+                            @change="asignaturaId = ''"
+                            required
+                            :disabled="!titulacionId"
+                            class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 transition-all duration-300 appearance-none disabled:opacity-30">
+                            <option value="" class="bg-black">— Curso —</option>
+
+                            <template x-for="curso in cursosFiltrados" :key="curso.id">
+                                <option :value="curso.id" class="bg-black" x-text="curso.nombre"></option>
+                            </template>
+                        </select>
+
+                        <p x-show="titulacionId && cursosFiltrados.length === 0"
+                           class="text-red-400/70 text-[10px] mt-2 uppercase tracking-widest"
+                           style="display: none;">
+                            No hay cursos cargados para esta titulación.
+                        </p>
+                    </div>
+
+                    {{-- Asignatura --}}
+                    <div>
+                        <label class="block text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 ml-1">Asignatura</label>
+                        <select name="asignatura_id"
+                            x-model="asignaturaId"
+                            required
+                            :disabled="!cursoId"
+                            class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:border-orange-500/50 transition-all duration-300 appearance-none disabled:opacity-30">
+                            <option value="" class="bg-black">— Asignatura —</option>
+
+                            <template x-for="asignatura in asignaturasFiltradas" :key="asignatura.id">
+                                <option :value="asignatura.id" class="bg-black" x-text="asignatura.nombre"></option>
+                            </template>
+                        </select>
+
+                        <p x-show="cursoId && asignaturasFiltradas.length === 0"
+                           class="text-red-400/70 text-[10px] mt-2 uppercase tracking-widest"
+                           style="display: none;">
+                            No hay asignaturas cargadas para este curso.
+                        </p>
+                    </div>
                 </div>
             </div>
 
+            {{-- Botón --}}
             <div class="pt-4">
                 <button type="submit"
                     class="w-full py-5 bg-orange-600 text-white font-black rounded-2xl hover:bg-orange-500 shadow-2xl shadow-orange-900/40 transform active:scale-95 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-3">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                     </svg>
-                    Subir apunte y ganar +20 puntos
+                    Enviar apunte a revisión
                 </button>
+
+                <p class="text-white/20 text-[10px] text-center mt-3 uppercase tracking-widest">
+                    Recibirás los puntos cuando el apunte sea aprobado.
+                </p>
             </div>
 
         </form>

@@ -10,11 +10,12 @@ class DatabaseSeeder extends Seeder
     {
         // El orden importa por las relaciones entre tablas
         $this->call([
-            CentroSeeder::class,
+            CentroOficialSeeder::class,
             NivelSeeder::class,
             UserSeeder::class,
             CursoSeeder::class,
             AsignaturaSeeder::class,
+            CatalogoAcademicoSeeder::class,
         ]);
     }
 }

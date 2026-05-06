@@ -14,17 +14,17 @@ class ApunteListadoController extends Controller
 {
     public function index(Request $request)
     {
-        // Usuario actual para comprobar descargas y puntos en las tarjetas
         $user = Auth::user();
 
-        // Cargamos los datos para los filtros de la barra lateral
         $niveles     = Nivel::orderBy('nombre')->get();
         $centros     = Centro::orderBy('localidad')->orderBy('nombre')->get();
         $cursos      = Curso::orderBy('nombre')->get();
         $asignaturas = Asignatura::orderBy('nombre')->get();
 
-        // Construimos la query con los filtros aplicados
+        // MUY IMPORTANTE:
+        // En Explorar solo deben aparecer apuntes aprobados.
         $query = Apunte::with(['user', 'asignatura', 'centro', 'nivel', 'curso', 'valoraciones.usuario'])
+            ->where('estado', 'aprobado')
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('nivel_id')) {

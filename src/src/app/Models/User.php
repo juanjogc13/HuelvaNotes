@@ -13,7 +13,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     // Campos que se pueden rellenar masivamente
-    protected $fillable = ['name', 'email', 'password', 'puntos', 'centro_id', 'foto'];
+    protected $fillable = ['name', 'email', 'password', 'puntos', 'centro_id', 'foto', 'rol'];
 
     // Campos ocultos en las respuestas JSON
     protected $hidden = ['password', 'remember_token'];

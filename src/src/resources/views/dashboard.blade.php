@@ -30,10 +30,18 @@
             <a href="/dashboard" class="text-xl font-black tracking-tighter">
                 <span class="text-orange-500">HUELVA</span><span class="text-white">NOTES</span>
             </a>
+
             <a href="{{ route('apuntes.index') }}"
                 class="text-[10px] font-bold text-white/40 uppercase tracking-widest hover:text-orange-500 transition hidden sm:block">
                 Explorar
             </a>
+
+            @if(in_array(Auth::user()->rol, ['admin', 'moderador']))
+                <a href="{{ route('moderacion.index') }}"
+                    class="text-[10px] font-bold text-orange-500 uppercase tracking-widest hover:text-orange-400 transition hidden sm:block">
+                    Solicitudes
+                </a>
+            @endif
         </div>
 
         <form action="{{ route('apuntes.index') }}" method="GET" class="flex-1 max-w-2xl">
@@ -57,7 +65,12 @@
                 </div>
                 <div class="text-left hidden sm:block">
                     <p class="text-white text-xs font-bold">{{ Auth::user()->name }}</p>
-                    <p class="text-orange-500 text-[10px] uppercase tracking-widest">{{ $user->puntos }} pts</p>
+                    <p class="text-orange-500 text-[10px] uppercase tracking-widest">
+                        {{ $user->puntos }} pts
+                        @if(in_array(Auth::user()->rol, ['admin', 'moderador']))
+                            · {{ Auth::user()->rol }}
+                        @endif
+                    </p>
                 </div>
                 <svg class="w-4 h-4 text-white/30 group-hover:text-orange-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -65,23 +78,36 @@
             </button>
 
             <div x-show="open" @click.away="open = false" x-transition
-                class="absolute right-0 mt-3 w-52 bg-black border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50">
+                class="absolute right-0 mt-3 w-52 bg-black border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50"
+                style="display: none;">
                 <div class="px-5 py-4 border-b border-white/10">
                     <p class="text-white text-sm font-bold">{{ Auth::user()->name }}</p>
                     <p class="text-white/30 text-xs">{{ Auth::user()->email }}</p>
                 </div>
+
                 <a href="/profile" class="flex items-center gap-3 px-5 py-3 text-white/60 hover:text-white hover:bg-white/5 transition text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z"/>
                     </svg>
                     Mi perfil
                 </a>
+
                 <a href="/dashboard" class="flex items-center gap-3 px-5 py-3 text-white/60 hover:text-white hover:bg-white/5 transition text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m10-11l2 2m-2-2v10a1 1 0 0 1-1 1h-3m-6 0h6"/>
                     </svg>
                     Dashboard
                 </a>
+
+                @if(in_array(Auth::user()->rol, ['admin', 'moderador']))
+                    <a href="{{ route('moderacion.index') }}" class="flex items-center gap-3 px-5 py-3 text-orange-500 hover:text-orange-400 hover:bg-white/5 transition text-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z"/>
+                        </svg>
+                        Solicitudes
+                    </a>
+                @endif
+
                 <div class="border-t border-white/10">
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -127,6 +153,32 @@
             </div>
         @endif
 
+        @if(session('status') === 'apunte-pendiente')
+            <div class="bg-orange-500/10 border border-orange-500/30 rounded-2xl p-4 mb-6 flex items-center gap-3">
+                <span class="text-orange-400 text-lg">⏳</span>
+                <div>
+                    <p class="text-orange-400 text-sm font-bold">Tu apunte se ha enviado a revisión.</p>
+                    <p class="text-orange-400/60 text-xs mt-0.5">Cuando un moderador lo apruebe, aparecerá en Explorar y recibirás tus puntos.</p>
+                </div>
+            </div>
+        @endif
+
+        @if(in_array(Auth::user()->rol, ['admin', 'moderador']))
+            <div class="bg-orange-500/10 border border-orange-500/30 rounded-3xl p-6 mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2">Panel de revisión</p>
+                    <h3 class="text-white font-black text-xl tracking-tight">Gestiona los apuntes enviados por los usuarios</h3>
+                    <p class="text-white/40 text-sm mt-1">Aprueba o rechaza las solicitudes antes de que aparezcan en Explorar.</p>
+                </div>
+
+                <a href="{{ route('moderacion.index') }}"
+                    class="inline-flex justify-center items-center gap-3 bg-orange-600 hover:bg-orange-500 text-white font-black px-6 py-4 rounded-2xl transition-all duration-300 active:scale-95 shadow-xl shadow-orange-900/40">
+                    <span class="uppercase tracking-widest text-xs">Ver solicitudes</span>
+                    <span>→</span>
+                </a>
+            </div>
+        @endif
+
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
 
             <div class="bg-white/5 border border-orange-500/40 rounded-3xl p-8 text-center backdrop-blur-xl relative overflow-hidden">
@@ -162,10 +214,29 @@
                     <h3 class="text-[10px] font-bold text-orange-500 uppercase tracking-widest">📁 Tus últimos apuntes</h3>
                     <a href="{{ route('apuntes.create') }}" class="text-[9px] font-bold text-orange-500/60 hover:text-orange-500 uppercase tracking-widest transition">+ Subir</a>
                 </div>
+
                 @forelse ($apuntesSubidos as $apunte)
                     <div class="border-b border-white/10 py-4">
-                        <p class="text-white font-semibold">{{ $apunte->titulo }}</p>
-                        <p class="text-white/30 text-xs mt-1">{{ $apunte->asignatura->nombre ?? '-' }} · {{ $apunte->created_at->diffForHumans() }}</p>
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <p class="text-white font-semibold">{{ $apunte->titulo }}</p>
+                                <p class="text-white/30 text-xs mt-1">{{ $apunte->asignatura->nombre ?? '-' }} · {{ $apunte->created_at->diffForHumans() }}</p>
+                            </div>
+
+                            @if($apunte->estado === 'pendiente')
+                                <span class="px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
+                                    Pendiente
+                                </span>
+                            @elseif($apunte->estado === 'aprobado')
+                                <span class="px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest bg-green-500/10 text-green-400 border border-green-500/20">
+                                    Aprobado
+                                </span>
+                            @elseif($apunte->estado === 'rechazado')
+                                <span class="px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest bg-red-500/10 text-red-400 border border-red-500/20">
+                                    Rechazado
+                                </span>
+                            @endif
+                        </div>
                     </div>
                 @empty
                     <div class="text-center py-6">
