@@ -4,10 +4,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>HuelvaNotes | Apuntes</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
+
+    {{-- Bootstrap Icons --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
 </head>
+
 <body class="antialiased bg-black text-white min-h-screen">
 
     {{-- Navbar principal con logo, buscador y avatar --}}
@@ -22,6 +31,11 @@
                 Explorar
             </a>
 
+            <a href="{{ route('ranking.index') }}"
+                class="text-[10px] font-bold text-white/40 uppercase tracking-widest hover:text-orange-500 transition hidden sm:block">
+                Ranking
+            </a>
+
             @if(in_array(Auth::user()->rol, ['admin', 'moderador']))
                 <a href="{{ route('moderacion.index') }}"
                     class="text-[10px] font-bold text-white/40 uppercase tracking-widest hover:text-orange-500 transition hidden sm:block">
@@ -33,9 +47,8 @@
         {{-- Buscador por título en la navbar --}}
         <form action="{{ route('apuntes.index') }}" method="GET" class="flex-1 max-w-2xl">
             <div class="relative">
-                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
-                </svg>
+                <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm"></i>
+
                 <input type="text" name="q" value="{{ request('q') }}" placeholder="Busca apuntes, asignaturas, centros..."
                     class="w-full pl-11 pr-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white text-sm placeholder-white/20 focus:outline-none focus:border-orange-500/50 focus:bg-white/10 transition-all duration-300">
             </div>
@@ -51,6 +64,7 @@
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     @endif
                 </div>
+
                 <div class="text-left hidden sm:block">
                     <p class="text-white text-xs font-bold">{{ Auth::user()->name }}</p>
                     <p class="text-orange-500 text-[10px] uppercase tracking-widest">
@@ -60,9 +74,8 @@
                         @endif
                     </p>
                 </div>
-                <svg class="w-4 h-4 text-white/30 group-hover:text-orange-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
+
+                <i class="bi bi-chevron-down text-white/30 group-hover:text-orange-500 transition text-sm"></i>
             </button>
 
             {{-- Menú desplegable del usuario --}}
@@ -75,24 +88,23 @@
                 </div>
 
                 <a href="/profile" class="flex items-center gap-3 px-5 py-3 text-white/60 hover:text-white hover:bg-white/5 transition text-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z"/>
-                    </svg>
+                    <i class="bi bi-person-fill text-sm"></i>
                     Mi perfil
                 </a>
 
                 <a href="/dashboard" class="flex items-center gap-3 px-5 py-3 text-white/60 hover:text-white hover:bg-white/5 transition text-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m10-11l2 2m-2-2v10a1 1 0 0 1-1 1h-3m-6 0h6"/>
-                    </svg>
+                    <i class="bi bi-house-door-fill text-sm"></i>
                     Dashboard
+                </a>
+
+                <a href="{{ route('ranking.index') }}" class="flex items-center gap-3 px-5 py-3 text-white/60 hover:text-white hover:bg-white/5 transition text-sm">
+                    <i class="bi bi-trophy-fill text-sm"></i>
+                    Ranking
                 </a>
 
                 @if(in_array(Auth::user()->rol, ['admin', 'moderador']))
                     <a href="{{ route('moderacion.index') }}" class="flex items-center gap-3 px-5 py-3 text-orange-500 hover:text-orange-400 hover:bg-white/5 transition text-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z"/>
-                        </svg>
+                        <i class="bi bi-clipboard-check-fill text-sm"></i>
                         Solicitudes
                     </a>
                 @endif
@@ -101,9 +113,7 @@
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="w-full flex items-center gap-3 px-5 py-3 text-red-400 hover:text-red-300 hover:bg-white/5 transition text-sm">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1"/>
-                            </svg>
+                            <i class="bi bi-box-arrow-right text-sm"></i>
                             Cerrar sesión
                         </button>
                     </form>
@@ -116,9 +126,15 @@
 
         <div class="flex items-center justify-between mb-8">
             <div>
-                <h2 class="text-3xl font-black tracking-tighter">Todos los <span class="text-orange-500">Apuntes</span></h2>
-                <p class="text-white/30 text-sm mt-1 uppercase tracking-widest">{{ $apuntes->total() }} apuntes disponibles</p>
+                <h2 class="text-3xl font-black tracking-tighter">
+                    Todos los <span class="text-orange-500">Apuntes</span>
+                </h2>
+
+                <p class="text-white/30 text-sm mt-1 uppercase tracking-widest">
+                    {{ $apuntes->total() }} apuntes disponibles
+                </p>
             </div>
+
             <a href="{{ route('apuntes.create') }}"
                 class="flex items-center gap-3 bg-orange-600 hover:bg-orange-500 text-white font-black px-6 py-4 rounded-2xl transition-all duration-300 active:scale-95 shadow-2xl shadow-orange-900/50">
                 <span class="relative flex h-3 w-3">
@@ -126,12 +142,13 @@
                     <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
                 </span>
                 <span class="uppercase tracking-widest text-xs">Subir apunte</span>
+                <i class="bi bi-upload text-sm"></i>
             </a>
         </div>
 
         @if(session('status') === 'apunte-eliminado')
             <div class="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 mb-6 flex items-center gap-3">
-                <span class="text-red-400 text-lg">🗑️</span>
+                <i class="bi bi-trash-fill text-red-400 text-lg"></i>
                 <div>
                     <p class="text-red-400 text-sm font-bold">Apunte eliminado correctamente.</p>
                     <p class="text-red-400/60 text-xs mt-0.5">Se ha borrado el apunte y sus datos relacionados.</p>
@@ -141,7 +158,7 @@
 
         @if(session('error'))
             <div class="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 mb-6 flex items-center gap-3">
-                <span class="text-red-400 text-lg">⚠️</span>
+                <i class="bi bi-exclamation-triangle-fill text-red-400 text-lg"></i>
                 <div>
                     <p class="text-red-400 text-sm font-bold">{{ session('error') }}</p>
                 </div>
@@ -157,8 +174,13 @@
                 @if(request()->hasAny(['nivel_id', 'curso_id', 'asignatura_id', 'centro_id', 'formato', 'q']))
                     <div class="bg-orange-500/10 border border-orange-500/30 rounded-2xl p-4">
                         <div class="flex items-center justify-between mb-2">
-                            <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest">Filtros activos</p>
-                            <a href="{{ route('apuntes.index') }}" class="text-[10px] text-white/40 hover:text-orange-500 uppercase tracking-widest transition">Limpiar</a>
+                            <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest flex items-center gap-2">
+                                <i class="bi bi-funnel-fill"></i>
+                                Filtros activos
+                            </p>
+                            <a href="{{ route('apuntes.index') }}" class="text-[10px] text-white/40 hover:text-orange-500 uppercase tracking-widest transition">
+                                Limpiar
+                            </a>
                         </div>
                         <p class="text-white/40 text-xs">Mostrando resultados filtrados</p>
                     </div>
@@ -166,7 +188,11 @@
 
                 {{-- Filtro por nivel educativo --}}
                 <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
-                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3">Nivel</p>
+                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i class="bi bi-layers-fill"></i>
+                        Nivel
+                    </p>
+
                     <div class="space-y-2">
                         @foreach($niveles as $nivel)
                             <label class="flex items-center gap-3 cursor-pointer group">
@@ -181,7 +207,11 @@
 
                 {{-- Filtro por curso --}}
                 <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
-                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3">Curso</p>
+                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i class="bi bi-journal-bookmark-fill"></i>
+                        Curso
+                    </p>
+
                     <select name="curso_id"
                         class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500/50 transition appearance-none">
                         <option value="" class="bg-black">Todos los cursos</option>
@@ -195,7 +225,11 @@
 
                 {{-- Filtro por asignatura --}}
                 <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
-                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3">Asignatura</p>
+                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i class="bi bi-book-fill"></i>
+                        Asignatura
+                    </p>
+
                     <select name="asignatura_id"
                         class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500/50 transition appearance-none">
                         <option value="" class="bg-black">Todas las asignaturas</option>
@@ -209,7 +243,11 @@
 
                 {{-- Filtro por centro educativo --}}
                 <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
-                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3">Centro</p>
+                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i class="bi bi-building-fill"></i>
+                        Centro
+                    </p>
+
                     <select name="centro_id"
                         class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500/50 transition appearance-none">
                         <option value="" class="bg-black">Todos los centros</option>
@@ -223,7 +261,11 @@
 
                 {{-- Filtro por formato de archivo --}}
                 <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
-                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3">Formato</p>
+                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i class="bi bi-file-earmark-fill"></i>
+                        Formato
+                    </p>
+
                     <div class="flex flex-wrap gap-2">
                         @foreach(['pdf', 'docx', 'pptx', 'jpg', 'png'] as $fmt)
                             <label class="cursor-pointer">
@@ -240,7 +282,8 @@
                 </div>
 
                 <button type="submit"
-                    class="w-full py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl transition uppercase tracking-widest text-xs">
+                    class="w-full py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl transition uppercase tracking-widest text-xs flex items-center justify-center gap-2">
+                    <i class="bi bi-funnel-fill"></i>
                     Aplicar filtros
                 </button>
 
@@ -251,11 +294,14 @@
 
                 @if($apuntes->isEmpty())
                     <div class="bg-white/5 border border-white/10 rounded-3xl p-16 text-center">
-                        <p class="text-white/20 text-4xl mb-4">📭</p>
+                        <p class="text-white/20 text-5xl mb-4">
+                            <i class="bi bi-inbox-fill"></i>
+                        </p>
                         <p class="text-white font-bold">No se encontraron apuntes</p>
                         <p class="text-white/30 text-sm mt-2">Prueba a cambiar los filtros o sé el primero en subir uno</p>
-                        <a href="{{ route('apuntes.create') }}" class="inline-block mt-6 text-[10px] font-bold text-orange-500 uppercase tracking-widest hover:text-orange-400 transition">
-                            Subir apunte →
+                        <a href="{{ route('apuntes.create') }}" class="inline-flex items-center gap-2 mt-6 text-[10px] font-bold text-orange-500 uppercase tracking-widest hover:text-orange-400 transition">
+                            Subir apunte
+                            <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
                 @else
@@ -294,10 +340,7 @@
                                                     <button type="submit"
                                                         class="w-8 h-8 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition flex items-center justify-center"
                                                         title="Borrar apunte">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0H7m3 0V5a1 1 0 011-1h2a1 1 0 011 1v2"/>
-                                                        </svg>
+                                                        <i class="bi bi-trash-fill text-sm"></i>
                                                     </button>
                                                 </form>
                                             @endif
@@ -312,31 +355,51 @@
                                         @endif
 
                                         <div class="space-y-1 mb-4">
-                                            <p class="text-white/30 text-xs">📚 {{ $apunte->asignatura->nombre ?? '-' }} · {{ $apunte->curso->nombre ?? '-' }}</p>
-                                            <p class="text-white/30 text-xs">🏫 {{ $apunte->centro->nombre ?? '-' }}</p>
-                                            <p class="text-white/30 text-xs">👤 {{ $apunte->user->name ?? 'Anónimo' }}</p>
+                                            <p class="text-white/30 text-xs flex items-center gap-2">
+                                                <i class="bi bi-book-fill text-orange-500/70"></i>
+                                                {{ $apunte->asignatura->nombre ?? '-' }} · {{ $apunte->curso->nombre ?? '-' }}
+                                            </p>
+                                            <p class="text-white/30 text-xs flex items-center gap-2">
+                                                <i class="bi bi-building-fill text-orange-500/70"></i>
+                                                {{ $apunte->centro->nombre ?? '-' }}
+                                            </p>
+                                            <p class="text-white/30 text-xs flex items-center gap-2">
+                                                <i class="bi bi-person-fill text-orange-500/70"></i>
+                                                {{ $apunte->user->name ?? 'Anónimo' }}
+                                            </p>
                                         </div>
                                     </div>
 
                                     <div class="pt-4 border-t border-white/10">
                                         <div class="flex items-center justify-between mb-3">
                                             <div class="flex items-center gap-3">
-                                                <span class="text-yellow-400 text-xs font-bold">⭐ {{ number_format($apunte->valoracion_media, 1) }}</span>
-                                                <span class="text-white/20 text-xs">📥 {{ $apunte->total_descargas }}</span>
+                                                <span class="text-yellow-400 text-xs font-bold flex items-center gap-1">
+                                                    <i class="bi bi-star-fill"></i>
+                                                    {{ number_format($apunte->valoracion_media, 1) }}
+                                                </span>
+                                                <span class="text-white/20 text-xs flex items-center gap-1">
+                                                    <i class="bi bi-download"></i>
+                                                    {{ $apunte->total_descargas }}
+                                                </span>
                                             </div>
                                             <span class="text-orange-500 font-black text-sm">{{ $apunte->coste_puntos }} pts</span>
                                         </div>
 
                                         {{-- Estado del botón según si es tuyo, ya descargado o disponible --}}
                                         @if($apunte->user_id === Auth::id())
-                                            <span class="w-full block text-center py-2 text-white/20 text-xs uppercase tracking-widest">Tu apunte</span>
+                                            <span class="w-full flex items-center justify-center gap-2 py-2 text-white/20 text-xs uppercase tracking-widest">
+                                                <i class="bi bi-person-check-fill"></i>
+                                                Tu apunte
+                                            </span>
                                         @elseif($user->descargas()->where('apunte_id', $apunte->id)->exists())
-                                            <div class="w-full py-2 bg-green-500/10 border border-green-500/30 text-green-400 font-bold rounded-xl text-xs uppercase tracking-widest text-center">
-                                                ✅ Ya descargado
+                                            <div class="w-full py-2 bg-green-500/10 border border-green-500/30 text-green-400 font-bold rounded-xl text-xs uppercase tracking-widest text-center flex items-center justify-center gap-2">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                                Ya descargado
                                             </div>
                                         @else
-                                            <div class="w-full py-2 bg-orange-600 text-white font-black rounded-xl text-xs uppercase tracking-widest text-center">
-                                                📥 Descargar · {{ $apunte->coste_puntos }} pts
+                                            <div class="w-full py-2 bg-orange-600 text-white font-black rounded-xl text-xs uppercase tracking-widest text-center flex items-center justify-center gap-2">
+                                                <i class="bi bi-download"></i>
+                                                Descargar · {{ $apunte->coste_puntos }} pts
                                             </div>
                                         @endif
                                     </div>
@@ -385,9 +448,7 @@
                                                 </div>
 
                                                 <button @click="open = false" class="text-white/30 hover:text-white transition shrink-0">
-                                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                    </svg>
+                                                    <i class="bi bi-x-lg text-xl"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -404,19 +465,31 @@
 
                                             <div class="grid grid-cols-2 gap-4">
                                                 <div class="bg-white/5 rounded-2xl p-4">
-                                                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1">Asignatura</p>
+                                                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                                        <i class="bi bi-book-fill"></i>
+                                                        Asignatura
+                                                    </p>
                                                     <p class="text-white text-sm font-semibold">{{ $apunte->asignatura->nombre ?? '-' }}</p>
                                                 </div>
                                                 <div class="bg-white/5 rounded-2xl p-4">
-                                                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1">Curso</p>
+                                                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                                        <i class="bi bi-journal-bookmark-fill"></i>
+                                                        Curso
+                                                    </p>
                                                     <p class="text-white text-sm font-semibold">{{ $apunte->curso->nombre ?? '-' }}</p>
                                                 </div>
                                                 <div class="bg-white/5 rounded-2xl p-4">
-                                                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1">Nivel</p>
+                                                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                                        <i class="bi bi-layers-fill"></i>
+                                                        Nivel
+                                                    </p>
                                                     <p class="text-white text-sm font-semibold">{{ $apunte->nivel->nombre ?? '-' }}</p>
                                                 </div>
                                                 <div class="bg-white/5 rounded-2xl p-4">
-                                                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1">Centro</p>
+                                                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                                        <i class="bi bi-building-fill"></i>
+                                                        Centro
+                                                    </p>
                                                     <p class="text-white text-sm font-semibold">{{ $apunte->centro->nombre ?? '-' }}</p>
                                                 </div>
                                             </div>
@@ -430,14 +503,20 @@
                                                     @endif
                                                 </div>
                                                 <div>
-                                                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest">Subido por</p>
+                                                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest flex items-center gap-2">
+                                                        <i class="bi bi-person-fill"></i>
+                                                        Subido por
+                                                    </p>
                                                     <p class="text-white text-sm font-semibold">{{ $apunte->user->name ?? 'Anónimo' }}</p>
                                                 </div>
                                             </div>
 
                                             <div class="flex items-center gap-6">
                                                 <div class="text-center">
-                                                    <p class="text-yellow-400 text-xl font-black">{{ number_format($apunte->valoracion_media, 1) }}</p>
+                                                    <p class="text-yellow-400 text-xl font-black flex items-center justify-center gap-1">
+                                                        <i class="bi bi-star-fill text-sm"></i>
+                                                        {{ number_format($apunte->valoracion_media, 1) }}
+                                                    </p>
                                                     <p class="text-white/30 text-[10px] uppercase tracking-widest">Valoración</p>
                                                 </div>
                                                 <div class="text-center">
@@ -457,26 +536,30 @@
                                             {{-- Botón de descarga --}}
                                             <div>
                                                 @if($apunte->user_id === Auth::id())
-                                                    <div class="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-center text-white/30 text-xs uppercase tracking-widest">
+                                                    <div class="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-center text-white/30 text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+                                                        <i class="bi bi-person-check-fill"></i>
                                                         Este es tu apunte
                                                     </div>
                                                 @elseif($user->descargas()->where('apunte_id', $apunte->id)->exists())
                                                     <form method="POST" action="{{ route('apuntes.download', $apunte->id) }}" @click.stop>
                                                         @csrf
-                                                        <button type="submit" class="w-full py-4 bg-green-500/10 border border-green-500/30 text-green-400 font-black rounded-2xl text-xs uppercase tracking-widest hover:bg-green-500/20 transition">
-                                                            ✅ Descargar de nuevo — gratis
+                                                        <button type="submit" class="w-full py-4 bg-green-500/10 border border-green-500/30 text-green-400 font-black rounded-2xl text-xs uppercase tracking-widest hover:bg-green-500/20 transition flex items-center justify-center gap-2">
+                                                            <i class="bi bi-check-circle-fill"></i>
+                                                            Descargar de nuevo — gratis
                                                         </button>
                                                     </form>
                                                 @elseif($user->puntos >= $apunte->coste_puntos)
                                                     <form method="POST" action="{{ route('apuntes.download', $apunte->id) }}" @click.stop>
                                                         @csrf
-                                                        <button type="submit" class="w-full py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl text-xs uppercase tracking-widest transition active:scale-95 shadow-xl shadow-orange-900/40">
-                                                            📥 Descargar · {{ $apunte->coste_puntos }} pts
+                                                        <button type="submit" class="w-full py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl text-xs uppercase tracking-widest transition active:scale-95 shadow-xl shadow-orange-900/40 flex items-center justify-center gap-2">
+                                                            <i class="bi bi-download"></i>
+                                                            Descargar · {{ $apunte->coste_puntos }} pts
                                                         </button>
                                                     </form>
                                                 @else
-                                                    <div class="w-full py-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-center text-red-400 text-xs uppercase tracking-widest">
-                                                        ❌ Puntos insuficientes — necesitas {{ $apunte->coste_puntos }} pts
+                                                    <div class="w-full py-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-center text-red-400 text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+                                                        <i class="bi bi-x-circle-fill"></i>
+                                                        Puntos insuficientes — necesitas {{ $apunte->coste_puntos }} pts
                                                     </div>
                                                 @endif
                                             </div>
@@ -489,7 +572,10 @@
 
                                                 @if(!$yaValorado)
                                                     <div class="bg-white/5 rounded-2xl p-5">
-                                                        <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-4">Valora este apunte</p>
+                                                        <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                                            <i class="bi bi-star-fill"></i>
+                                                            Valora este apunte
+                                                        </p>
                                                         <form method="POST" action="{{ route('apuntes.valorar', $apunte->id) }}" @click.stop x-data="{ stars: 0 }">
                                                             @csrf
                                                             <div class="flex gap-2 mb-4">
@@ -498,7 +584,7 @@
                                                                     <button type="button" @click="stars = {{ $i }}"
                                                                         class="text-3xl transition"
                                                                         :class="stars >= {{ $i }} ? 'text-yellow-400' : 'text-white/20'">
-                                                                        ★
+                                                                        <i class="bi bi-star-fill"></i>
                                                                     </button>
                                                                 @endfor
                                                             </div>
@@ -506,14 +592,18 @@
                                                             <textarea name="comentario" rows="2" placeholder="Comentario opcional..."
                                                                 class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none focus:border-orange-500/50 transition mb-3 resize-none"></textarea>
 
-                                                            <button type="submit" class="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-black rounded-xl text-xs uppercase tracking-widest transition">
+                                                            <button type="submit" class="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-black rounded-xl text-xs uppercase tracking-widest transition flex items-center justify-center gap-2">
+                                                                <i class="bi bi-send-fill"></i>
                                                                 Enviar valoración
                                                             </button>
                                                         </form>
                                                     </div>
                                                 @else
                                                     <div class="bg-green-500/10 border border-green-500/20 rounded-2xl p-4 text-center">
-                                                        <p class="text-green-400 text-xs uppercase tracking-widest font-bold">✅ Ya has valorado este apunte</p>
+                                                        <p class="text-green-400 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+                                                            <i class="bi bi-check-circle-fill"></i>
+                                                            Ya has valorado este apunte
+                                                        </p>
                                                     </div>
                                                 @endif
                                             @elseif($apunte->user_id !== Auth::id())
@@ -525,7 +615,10 @@
                                             {{-- Lista de valoraciones existentes --}}
                                             @if($apunte->valoraciones->count() > 0)
                                                 <div>
-                                                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-4">Valoraciones</p>
+                                                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                                        <i class="bi bi-chat-left-text-fill"></i>
+                                                        Valoraciones
+                                                    </p>
                                                     <div class="space-y-3">
                                                         @foreach($apunte->valoraciones->take(3) as $valoracion)
                                                             <div class="bg-white/5 rounded-2xl p-4">
@@ -533,7 +626,7 @@
                                                                     <p class="text-white text-xs font-bold">{{ $valoracion->usuario->name ?? 'Anónimo' }}</p>
                                                                     <div class="flex gap-0.5">
                                                                         @for($i = 1; $i <= 5; $i++)
-                                                                            <span class="{{ $i <= $valoracion->puntuacion ? 'text-yellow-400' : 'text-white/10' }} text-xs">★</span>
+                                                                            <i class="bi bi-star-fill {{ $i <= $valoracion->puntuacion ? 'text-yellow-400' : 'text-white/10' }} text-xs"></i>
                                                                         @endfor
                                                                     </div>
                                                                 </div>
@@ -556,11 +649,15 @@
 
                     {{-- Paginación --}}
                     @if($apuntes->hasPages())
-                        <div class="mt-8 flex justify-center gap-2">
+                        <div class="mt-8 flex justify-center gap-2 flex-wrap">
                             @if($apuntes->onFirstPage())
-                                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white/20 text-sm">← Anterior</span>
+                                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white/20 text-sm">
+                                    ← Anterior
+                                </span>
                             @else
-                                <a href="{{ $apuntes->previousPageUrl() }}" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white/60 hover:text-white hover:border-orange-500/40 transition text-sm">← Anterior</a>
+                                <a href="{{ $apuntes->previousPageUrl() }}" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white/60 hover:text-white hover:border-orange-500/40 transition text-sm">
+                                    ← Anterior
+                                </a>
                             @endif
 
                             @foreach($apuntes->getUrlRange(1, $apuntes->lastPage()) as $page => $url)
@@ -571,9 +668,13 @@
                             @endforeach
 
                             @if($apuntes->hasMorePages())
-                                <a href="{{ $apuntes->nextPageUrl() }}" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white/60 hover:text-white hover:border-orange-500/40 transition text-sm">Siguiente →</a>
+                                <a href="{{ $apuntes->nextPageUrl() }}" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white/60 hover:text-white hover:border-orange-500/40 transition text-sm">
+                                    Siguiente →
+                                </a>
                             @else
-                                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white/20 text-sm">Siguiente →</span>
+                                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white/20 text-sm">
+                                    Siguiente →
+                                </span>
                             @endif
                         </div>
                     @endif
